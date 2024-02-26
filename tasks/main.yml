@@ -1,0 +1,67 @@
+---
+# tasks file for monarx_agent_role
+- name: Debian | Ensure Required Packages are installed
+  ansible.builtin.apt:
+    name: '{{ item }}'
+    state: present
+    update_cache: true
+  with_items:
+    - gnupg
+  when: ansible_os_family == 'Debian' and ansible_distribution_release in ['buster', 'bullseye', 'bookworm']
+
+- name: Debian | Install Monarx Repostiry Key
+  ansible.builtin.apt_key:
+    url: 'https://repository.monarx.com/repository/monarx/publickey/monarxpub.gpg'
+    state: present
+  when: ansible_os_family == 'Debian'
+
+- name: Debian | Install Monarx Repostiry
+  ansible.builtin.apt_repository:
+    repo: 'deb [arch=amd64] https://repository.monarx.com/repository/{{ ansible_distribution|lower }}-{{ ansible_distribution_release }}/ {{ ansible_distribution_release }} main'
+    state: present
+    update_cache: true
+  when: ansible_os_family == 'Debian'
+
+- name: RHEL | Install Monarx Repostiry Key
+  ansible.builtin.rpm_key:
+    key: 'https://repository.monarx.com/repository/monarx/publickey/monarxpub.gpg'
+    state: present
+  when: ansible_os_family == 'RedHat'
+
+- name: RHEL | Install Monarx Repository
+  ansible.builtin.yum_repository:
+    name: monarx
+    description: Monarx Repository
+    baseurl: 'https://repository.monarx.com/repository/monarx-yum/linux/yum/el/{{ ansible_distribution_major_version }}/x86_64/'
+    gpgcheck: true
+  when: ansible_os_family == 'RedHat'
+
+- name: All | Copy Monarx Agent Configuration Template
+  ansible.builtin.template:
+    src: monarx-agent.conf.j2
+    dest: /etc/monarx-agent.conf
+    owner: root
+    group: root
+    mode: 0644
+
+- name: All | Install Monarx Agent
+  ansible.builtin.package:
+    name: monarx-protect-autodetect
+    state: present
+
+- name: All | Check if cPanel is installed
+  ansible.builtin.stat:
+    path: /usr/local/cpanel
+  register: cpanel_installed
+
+- name: All | Install Monarx cPanel Plugin
+  ansible.builtin.package:
+    name: monarx-cpanel-plugin
+    state: present
+  when: cpanel_installed.stat.exists is true and install_cpanel_plugin is true
+
+- name: All | Install Monarx WHM Plugin
+  ansible.builtin.package:
+    name: monarx-whm-plugin
+    state: present
+  when: cpanel_installed.stat.exists is true and install_whm_plugin is true

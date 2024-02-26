@@ -1,0 +1,31 @@
+galaxy_info:
+  author: Ahmed Shibani
+  description: Ansible role to install and configure [Monarx Agent](https://support.monarx.com/en/articles/5684177-installing-the-agent-protect)
+  company: Libyan Spider
+  role_name: monarx_agent
+  license: BSD
+  min_ansible_version: 2.1
+
+  platforms:
+    - name: EL
+      versions:
+        - "7"
+        - "8"
+        - "9"
+    - name: Debian
+      versions:
+        - "bullseye"
+        - "buster"
+        - "bookworm"
+    - name: Ubuntu
+      versions:
+        - "lunar"
+        - "jammy"
+        - "focal"
+        - "bionic"
+        - "xenial"
+
+  galaxy_tags:
+    - monarx
+
+dependencies: []

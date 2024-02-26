@@ -1,0 +1,33 @@
+---
+# defaults file for monarx_agent_role
+
+client_id: "CLIENTID"
+client_secret: "SECRET"
+
+# Base Directory(-ies) for Users
+user_bases:
+  - /home/
+  - /var/www/
+
+# Excluded directories
+exclude_dirs:
+  - /virtfs
+  - /(clam_|\.)?quarantine
+  - ^/home/quarantine/
+
+# Excluded Users
+exclude_users:
+  - ^virtfs$
+
+# Advanced Options (https://support.monarx.com/en/articles/5684188-advanced-agent-configuration)
+advanced_options:
+  - { name: "quarantine.global", value: "/var/log/.quarantine/" }
+  - { name: "quarantine.user", value: "$USER/.quarantine/ $USER $USER 0700" }
+
+agent_tags:
+  - tag1
+  - tag2
+
+# Install cPanel and WHM Plugin/Module (https://support.monarx.com/en/articles/5837439-cpanel-whm-plugin-module)
+install_cpanel_plugin: true
+install_whm_plugin: true

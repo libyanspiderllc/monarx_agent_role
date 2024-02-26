@@ -1,0 +1,147 @@
+
+;===============================================================================
+; Authentication
+;===============================================================================
+;
+; The client_id and client_secret are required for the agent to communicate with
+; the cloud.  It will not run without these set properly.  These values are set
+; automatically if you download this file from the Monarx web application.
+;
+; NOTE:  If you downloaded this file from the Monarx web application it will
+;        *NOT* have any custom configuration settings in it other than the
+;        client_id and client_secret.  Be careful to not overwrite other custom
+;        settings for your enterprise.
+;
+;===============================================================================
+
+client_id     = {{client_id}}
+client_secret = {{client_secret}}
+
+
+;===============================================================================
+; Base Directory(-ies) for Users
+;===============================================================================
+;
+; Monarx will only process files under the configured user base directories,
+; treating the next-level directories as distinct user accounts.
+;
+; Note that user_base can be set to a single directory, or you can specify
+; multiple directories by providing multiple entries in this config file and/or
+; using regular expression syntax.
+;
+; NOTE: To use a regular expression in a user_base entry an entire directory
+;       component must be enclosed in parentheses.  E.g.:
+;
+; user_base = /home/                 ; monitors directories under /home/
+; user_base = /var/www/              ; also monitors directories under /var/www/
+; user_base = /var/(www[1-4])/       ; matches /var/www1/, /var/www2/, ...
+; user_base = /var/www[1-4]/         ; not interpreted as a regular expression
+; user_base = /home/*/               ; not interpreted as a regular expression
+;
+; If no user_base entries are specified, Monarx attempts to determine where the
+; user base directory may be.  But is recommended to set user_base explicitly
+;
+;===============================================================================
+
+; exclude virtfs (*critical*) & quarantine directories
+; put these before *any* user_base directives so they apply to *all* of them
+; for more details, see "Advanced Configuration Options" below
+; exclude_dirs  = /virtfs                  ; matches $user_base/$user/.../virtfs
+; exclude_dirs  = /(clam_|\.)?quarantine   ; matches $user_base/$user/.../<x>
+                                          ;    where x is "clam_quarantine",
+                                          ;    ".quarantine" or "quarantine"
+
+; Configuration Block added by Ansible
+; ======== Start Ansible Block ======== 
+{% for dir in exclude_dirs%}
+exclude_dirs = {{dir}}
+{% endfor %}
+
+{% for base in user_bases %}
+user_base = {{base}}
+{% endfor %}
+
+{% for user in exclude_users %}
+exclude_users = {{user}}
+{% endfor %}
+
+{% for option in advanced_options %}
+{{option.name}} = {{option.value}}
+{% endfor %}
+
+{% if agent_tags|length > 0 %}
+tags = {{agent_tags|join(', ')}}
+{% endif %}
+; ======== End Ansible Block ========
+
+;===============================================================================
+; **TODO**: UNCOMMENT ONE OF THE user_base DIRECTIVES BELOW, OR ADD YOUR OWN
+;           BE SURE TO HAVE A virtfs EXCLUSION *AFTER EACH* user_base DIRECTIVE
+;===============================================================================
+
+;user_base = /home/                  ; common for cPanel environments
+;exclude_users = ^virtfs$            ; matches /home/virtfs
+
+;user_base = /var/www/               ; common for Plesk environments
+;exclude_users = ^virtfs$            ; matches /var/www/virtfs
+
+
+;===============================================================================
+; Advanced Configuration Options
+;===============================================================================
+;
+; Monarx also supports configuration options that allow you to:
+;     - exclude directories from being monitored
+;     - exclude certain users
+;     - configure custom quarantine directories
+;     - define actions for various classifications
+;     - ...
+;
+; For more information, please see the Configuration Guide at:
+;     https://support.monarx.com/en/articles/5684177-installing-the-agent-protect
+
+
+;===============================================================================
+; Agent Tags
+;===============================================================================
+;
+; **TODO**: SET TAGS APPROPRIATELY
+; 
+; Tags are used to label agents for any number of purposes.  You can tag your
+; agents by environment / server type, brand, etc.  Tags are also used to 
+; apply the proper billing scheme to each agent.
+;
+; An agent can have any number of tags, which will show up in the Agents module
+; in the web app, and can be used in API query filters.  Multiple tags can be
+; specified in a single directive, separated by commas.  Also, multiple tag
+; directives are supported, with all of the specified tags accumulated.
+;
+;===============================================================================
+;
+; specify billing model to be applied for this agent
+;tags = ixp                 ; infrastructure protection:  $/agent/mo
+;tags = upsell              ; upselling to customers:  revenue share
+; example tags to consider
+;tags = shared              ; env type:  or "vps", "dedi", etc.
+;tags = hostingbrand1       ; tag by brand
+;tags = customer1           ; tag by customer (for vps, dedi, ...)
+;tags = myserverid1         ; tag with your own ids
+                            ; note you can always identify agents by hostname
+;tags = tag1, tag2, tag3    ; you can put multiple tags on one line
+;
+;===============================================================================
+; Identification
+;===============================================================================
+;
+; host_id uniquely identifies this host/server/container within your
+; enterprise. When not defined, the current system hostname will be used.
+; 
+; NOTE: It is highly recommended to set host_id to a static value WHEN the hostname 
+;       is not unique to this host/server/container, or WHEN the hostname is fluid 
+;       (e.g. containerized environments). 
+;       Any change to the host_id value AFTER INSTALLATION will result in a new 
+;       agent being registered in the Monarx system.
+;
+; host_id = 
+;
+;===============================================================================
