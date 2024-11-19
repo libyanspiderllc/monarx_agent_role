@@ -29,5 +29,5 @@ agent_tags:
   - tag2
 
 # Install cPanel and WHM Plugin/Module (https://support.monarx.com/en/articles/5837439-cpanel-whm-plugin-module)
-install_cpanel_plugin: true
-install_whm_plugin: true
+install_cpanel_plugin: 'true'
+install_whm_plugin: 'true'
