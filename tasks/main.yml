@@ -58,10 +58,10 @@
   ansible.builtin.package:
     name: monarx-cpanel-plugin
     state: present
-  when: cpanel_installed.stat.exists is true and install_cpanel_plugin is true
+  when: cpanel_installed.stat.exists is true and install_cpanel_plugin == 'true'
 
 - name: All | Install Monarx WHM Plugin
   ansible.builtin.package:
     name: monarx-whm-plugin
     state: present
-  when: cpanel_installed.stat.exists is true and install_whm_plugin is true
+  when: cpanel_installed.stat.exists is true and install_whm_plugin == 'true'
